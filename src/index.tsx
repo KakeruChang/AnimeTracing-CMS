@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDom from 'react-dom'
 
-const Main = () => <h1>Hi JSX！</h1>
+import App from './App'
 
-ReactDom.render(<Main />, document.getElementById('root'))
+ReactDom.render(<App />, document.getElementById('root'))
