@@ -5,6 +5,7 @@ export interface Anime {
   webLink: string
   day: string // 1:Mon 2:Tue 3:Wed 4:Thu 5:Fri 6:Sat 7:Sun
   time: string // 24 00 (hh/mm)
+  timeArray: string[] // ISO  APP需新增
   episode: number // default 12
   startingDate: string // YYYY DD MM ex.2020 07 01
   id: string // for key
@@ -14,6 +15,7 @@ export interface Anime {
   isReminding: boolean
   rate: number // min:0.0 max:10.0
   video?: {
+    [key: string]: any
     baha?: { link: string; episode: number }
     muse?: { link: string; episode: number }
   }
