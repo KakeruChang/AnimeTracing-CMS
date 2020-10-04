@@ -1,14 +1,20 @@
 import React, { FC } from 'react'
 
 import { Anime } from '../interface'
-import TitlebarGridList from '../components/TitlebarGridList'
+import TitlebarGridList from './TitlebarGridList'
+import PushOne from './PushOne'
+import RecoverById from './RecoverById'
 
 interface HomeProps {
   allAnime: Array<Anime>
 }
 
 const Home: FC<HomeProps> = ({ allAnime }) => (
-  <TitlebarGridList animeList={allAnime} />
+  <>
+    <PushOne />
+    <TitlebarGridList animeList={allAnime} />
+    <RecoverById />
+  </>
 )
 
 export default Home

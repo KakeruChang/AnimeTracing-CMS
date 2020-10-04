@@ -3,11 +3,12 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import RenewIcon from '@material-ui/icons/Autorenew'
-import { parseISO, compareAsc } from 'date-fns'
+import { formatISO, parseISO, compareAsc } from 'date-fns'
 
 import { Anime } from '../../interface'
 import countTime from '../../functions/countTime'
-import DeleteButton from '../common/DeleteButton'
+import DeleteButton from './Button/DeleteButton'
+import AddAlarmButton from './Button/AddAlarmButton'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,6 +63,18 @@ export default function DateAndTimePickers({
     setTmpAnime(copy)
   }
 
+  const addTimeItem = () => {
+    let copy = { ...tmpAnime }
+    const todayWithSecond = formatISO(new Date())
+    const todayWithoutSecond = todayWithSecond.slice(
+      0,
+      todayWithSecond.length - 9
+    )
+
+    copy.timeArray.push(todayWithoutSecond)
+    setTmpAnime(copy)
+  }
+
   return (
     <>
       {/* <form className={classes.container} noValidate> */}
@@ -82,18 +95,23 @@ export default function DateAndTimePickers({
                 shrink: true
               }}
             />
-            <DeleteButton
-              onClick={() => {
-                deleteTimeItem(i)
-              }}
-            />
+            {isEditing && (
+              <DeleteButton
+                onClick={() => {
+                  deleteTimeItem(i)
+                }}
+              />
+            )}
           </Fragment>
         ))}
 
       {isEditing && (
-        <IconButton color='secondary' onClick={countRemainEpisodeTime}>
-          <RenewIcon />
-        </IconButton>
+        <>
+          <IconButton color='secondary' onClick={countRemainEpisodeTime}>
+            <RenewIcon />
+          </IconButton>
+          <AddAlarmButton onClick={addTimeItem} />
+        </>
       )}
 
       {/* </form> */}

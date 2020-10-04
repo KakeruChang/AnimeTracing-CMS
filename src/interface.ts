@@ -24,3 +24,7 @@ export interface Anime {
 export interface ButtonProps {
   onClick: () => void
 }
+export interface AnimeDocProps {
+  allAnime: Array<Anime>
+  expiration: Array<Anime>
+}

@@ -1,26 +1,24 @@
-import React, { ChangeEvent, FC, useEffect, useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { ChangeEvent, FC, useState, KeyboardEvent } from 'react'
 import TextField from '@material-ui/core/TextField'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import InputLabel from '@material-ui/core/InputLabel'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
+import { useHistory } from 'react-router-dom'
 
 import { Anime, AnimeDocProps } from '../interface'
 import SimpleBreadcrumbs from './common/SimpleBreadcrumbs'
-import EditButton from './common/Button/EditButton'
 import SaveButton from './common/Button/SaveButton'
-import CancelButton from './common/Button/CancelButton'
-import DeleteButton from './common/Button/DeleteButton'
 import DateAndTimePickers from './common/DateAndTimePickers'
 import TypeChips from './common/TypeChips'
 import Modal from './Modal'
 import { db } from '../firebase'
+import { checkAnime, allCheckIsPassed } from '../functions/checkAnime'
+import { FormHelperText } from '@material-ui/core'
 
-interface AnimeDetailProps {
+interface AddNewAnimeProps {
   allAnime: Array<Anime>
-  animeId: string
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -55,89 +53,31 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
+const AddNewAnime: FC<AddNewAnimeProps> = ({ allAnime }) => {
   const classes = useStyles()
   const history = useHistory()
-  const [activeAnime, setActiveAnime] = useState<Anime>({
-    title: '',
-    imgLink: '',
-    webLink: '',
-    day: '',
-    time: '',
+  const [newAnime, setNewAnime] = useState<Anime>({
+    title: '', //
+    imgLink: '', //
+    webLink: '', //
+    day: '', //
+    time: '', //
     timeArray: [],
-    episode: 0,
-    startingDate: '',
-    id: '',
+    episode: 0, //
+    startingDate: '', //
+    id: '', //
     type: [],
-    introduction: '',
-    isFavorite: false,
-    isReminding: false,
-    rate: 0,
+    introduction: '', //
+    isFavorite: false, //
+    isReminding: false, //
+    rate: 0, //
     video: {
-      baha: { link: '', episode: 0 },
-      muse: { link: '', episode: 0 }
-    }
-  })
-  const [tmpAnime, setTmpAnime] = useState<Anime>({
-    title: '',
-    imgLink: '',
-    webLink: '',
-    day: '',
-    time: '',
-    timeArray: [],
-    episode: 0,
-    startingDate: '',
-    id: '',
-    type: [],
-    introduction: '',
-    isFavorite: false,
-    isReminding: false,
-    rate: 0,
-    video: {
-      baha: { link: '', episode: 0 },
-      muse: { link: '', episode: 0 }
+      baha: { link: '', episode: 0 }, //
+      muse: { link: '', episode: 0 } //
     }
   })
   const [modalIsOpen, setModalIsOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-
-  useEffect(() => {
-    if (allAnime.length > 0) {
-      let trigger = false
-      for (let i = 0; i < allAnime.length; i += 1) {
-        if (allAnime[i].id === animeId) {
-          trigger = true
-          initializeAnime(allAnime[i])
-          setActiveAnime(JSON.parse(JSON.stringify(allAnime[i])))
-          setTmpAnime(JSON.parse(JSON.stringify(allAnime[i])))
-          // setActiveAnime({ ...allAnime[i] })
-          // setTmpAnime({ ...allAnime[i] })
-        }
-      }
-      if (!trigger) {
-        history.push('/')
-      }
-    }
-  }, [allAnime])
-
-  const initializeAnime = (anime: Anime) => {
-    if (!anime.video) {
-      anime.video = {
-        baha: { link: '', episode: 0 },
-        muse: { link: '', episode: 0 }
-      }
-    } else {
-      if (!anime.video.baha) {
-        anime.video.baha = { link: '', episode: 0 }
-      }
-      if (!anime.video.muse) {
-        anime.video.muse = { link: '', episode: 0 }
-      }
-    }
-    if (!anime.timeArray) {
-      anime.timeArray = []
-    }
-  }
+  const isEditing = true
 
   const onChangeHandler = (
     event: ChangeEvent<
@@ -150,7 +90,7 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
         }
     >
   ) => {
-    let copy = { ...tmpAnime }
+    let copy = { ...newAnime }
 
     if (event.target.name === 'video') {
       let site: string
@@ -173,146 +113,89 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
       copy[event.target.name!] = event.target.value
     }
 
-    setTmpAnime(copy)
+    setNewAnime(copy)
   }
 
   const saveEditing = async () => {
-    setActiveAnime(JSON.parse(JSON.stringify(tmpAnime)))
-    setIsEditing(false)
-
-    let copyAllAnime = JSON.parse(JSON.stringify(allAnime))
-    for (let i = 0; i < copyAllAnime.length; i += 1) {
-      if (tmpAnime.id === copyAllAnime[i].id) {
-        copyAllAnime[i] = tmpAnime
-        break
-      }
-    }
-    const expiration: AnimeDocProps | undefined = await db
-      .collection('Animes')
-      .get()
-      .then((querySnapshot) => {
-        let result
-        querySnapshot.forEach((doc) => {
-          result = doc.data().expiration
-        })
-        return result
-      })
-
-    console.log(copyAllAnime)
-    db.collection('Animes')
-      .doc('allAnime')
-      .set({ allAnime: copyAllAnime, expiration })
-      .then(function () {
-        console.log('Document successfully written!')
-      })
-      .catch(function (error) {
-        console.error('Error writing document: ', error)
-      })
-  }
-
-  const cancelEditing = () => {
-    setTmpAnime(JSON.parse(JSON.stringify(activeAnime)))
-    setIsEditing(false)
-  }
-
-  const deleteAnime = async () => {
-    const target = JSON.parse(JSON.stringify(activeAnime))
-    const doubleCheck = confirm(`你確定要刪除${target.title}嗎`)
-
-    if (doubleCheck) {
-      const target = JSON.parse(JSON.stringify(activeAnime))
-
-      const allAnimeDoc: AnimeDocProps | undefined = await db
+    if (allCheckIsPassed(checkAnime(newAnime))) {
+      const expiration: AnimeDocProps | undefined = await db
         .collection('Animes')
         .get()
         .then((querySnapshot) => {
           let result
           querySnapshot.forEach((doc) => {
-            result = doc.data()
+            result = doc.data().expiration
           })
           return result
         })
-      const active = JSON.parse(JSON.stringify(allAnimeDoc!.allAnime))
-      const expired = JSON.parse(JSON.stringify(allAnimeDoc!.expiration))
 
-      let index = null
-      for (let i = 0; i < active.length; i += 1) {
-        if (target.id === active[i].id) {
-          index = i
-          break
-        }
-      }
+      db.collection('Animes')
+        .doc('allAnime')
+        .set({ allAnime: [...allAnime, newAnime], expiration })
+        .then(function () {
+          console.log('Document successfully written!')
+          history.push('/')
+        })
+        .catch(function (error) {
+          console.error('Error writing document: ', error)
+        })
+    } else {
+      console.log('not complete')
+    }
+  }
 
-      if (typeof index === 'number') {
-        active.splice(index, 1)
+  const generateId = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.keyCode == 13 && newAnime.id.length === 0) {
+      let copy = { ...newAnime }
 
-        const newAnimeDoc = {
-          expiration: [...expired, target],
-          allAnime: active
-        }
-        console.log(newAnimeDoc)
+      copy.id = btoa(escape(newAnime.title))
 
-        db.collection('Animes')
-          .doc('allAnime')
-          .set(newAnimeDoc)
-          .then(function () {
-            console.log('delete successfully!')
-            window.location.reload()
-          })
-          .catch(function (error) {
-            console.error('Error delete: ', error)
-          })
-      }
+      setNewAnime(copy)
     }
   }
 
   return (
     <>
       <SimpleBreadcrumbs
-        title={activeAnime?.title}
+        title={newAnime.title}
         setModalIsOpen={setModalIsOpen}
       />
       <div className={classes.buttons}>
-        {!isEditing && (
-          <>
-            <EditButton onClick={() => setIsEditing(true)} />
-            <DeleteButton onClick={deleteAnime} />
-          </>
-        )}
-        {isEditing && (
-          <>
-            <SaveButton onClick={saveEditing} />
-            <CancelButton onClick={cancelEditing} />
-          </>
-        )}
+        <SaveButton onClick={saveEditing} />
       </div>
 
       <form className={classes.root} noValidate autoComplete='off'>
         <div>
           <TextField
-            error={tmpAnime?.title.length === 0}
-            required
+            error={!checkAnime(newAnime).title.isPass}
             helperText={
-              tmpAnime?.title.length === 0
-                ? 'Title can not be empty'
+              !checkAnime(newAnime).title.isPass
+                ? checkAnime(newAnime).title.text
                 : 'Required*'
             }
+            required
             label='title'
             id='title'
             name='title'
-            value={tmpAnime?.title}
+            value={newAnime.title}
+            onKeyDown={(e) => generateId(e)}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
             }}
           />
           <TextField
+            error={!checkAnime(newAnime).imgLink.isPass}
+            helperText={
+              !checkAnime(newAnime).imgLink.isPass
+                ? checkAnime(newAnime).imgLink.text
+                : 'Required*'
+            }
             required
-            helperText='Required*'
             label='imgLink'
             id='imgLink'
             name='imgLink'
-            value={tmpAnime?.imgLink}
+            value={newAnime.imgLink}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -320,11 +203,16 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             required
-            helperText='Required*'
+            error={!checkAnime(newAnime).webLink.isPass}
+            helperText={
+              !checkAnime(newAnime).webLink.isPass
+                ? checkAnime(newAnime).webLink.text
+                : 'Required*'
+            }
             label='webLink'
             id='webLink'
             name='webLink'
-            value={tmpAnime?.webLink}
+            value={newAnime.webLink}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -332,13 +220,18 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             type='number'
+            error={!checkAnime(newAnime).episode.isPass}
+            helperText={
+              !checkAnime(newAnime).episode.isPass
+                ? checkAnime(newAnime).episode.text
+                : 'Required*'
+            }
             className={classes.contentNumber}
             required
-            helperText='Required*'
             label='episode'
             id='episode'
             name='episode'
-            value={tmpAnime?.episode}
+            value={newAnime.episode}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -349,12 +242,18 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             required
-            helperText='Required*'
+            error={!checkAnime(newAnime).id.isPass}
+            helperText={
+              !checkAnime(newAnime).id.isPass
+                ? checkAnime(newAnime).id.text
+                : 'Required*'
+            }
             label='id'
             id='id'
             name='id'
-            value={tmpAnime?.id}
+            value={newAnime.id}
             onChange={(e) => onChangeHandler(e)}
+            onKeyDown={(e) => generateId(e)}
             InputProps={{
               readOnly: !isEditing
             }}
@@ -363,25 +262,28 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
 
         <TypeChips
           isEditing={isEditing}
-          tmpAnime={tmpAnime}
-          setTmpAnime={setTmpAnime}
+          tmpAnime={newAnime}
+          setTmpAnime={setNewAnime}
         />
 
         <div>
-          <FormControl variant='outlined' className={classes.formControl}>
+          <FormControl
+            variant='outlined'
+            className={classes.formControl}
+            error={!checkAnime(newAnime).day.isPass}
+          >
             <InputLabel htmlFor='day'>day</InputLabel>
             <Select
-              value={tmpAnime.day}
+              value={newAnime.day}
               onChange={(e) => onChangeHandler(e)}
               label='day'
               name='day'
               id='day'
               inputProps={{
                 readOnly: !isEditing
-                //   name: 'day',
-                //   id: 'day'
               }}
             >
+              {/* <option aria-label='None' value='' /> */}
               <MenuItem value={1}>1</MenuItem>
               <MenuItem value={2}>2</MenuItem>
               <MenuItem value={3}>3</MenuItem>
@@ -390,6 +292,11 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
               <MenuItem value={6}>6</MenuItem>
               <MenuItem value={7}>7</MenuItem>
             </Select>
+            <FormHelperText>
+              {!checkAnime(newAnime).day.isPass
+                ? checkAnime(newAnime).day.text
+                : ''}
+            </FormHelperText>
           </FormControl>
 
           <TextField
@@ -398,7 +305,7 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             label='time'
             id='time'
             name='time'
-            value={tmpAnime.time}
+            value={newAnime.time}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -411,7 +318,7 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             label='startingDate'
             id='startingDate'
             name='startingDate'
-            value={tmpAnime.startingDate}
+            value={newAnime.startingDate}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -422,8 +329,8 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
         <div>
           <DateAndTimePickers
             isEditing={isEditing}
-            tmpAnime={tmpAnime}
-            setTmpAnime={setTmpAnime}
+            tmpAnime={newAnime}
+            setTmpAnime={setNewAnime}
           />
         </div>
 
@@ -431,11 +338,16 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           <TextField
             required
             multiline
-            helperText='Required*'
+            error={!checkAnime(newAnime).introduction.isPass}
+            helperText={
+              !checkAnime(newAnime).introduction.isPass
+                ? checkAnime(newAnime).introduction.text
+                : 'Required*'
+            }
             label='introduction'
             id='introduction'
             name='introduction'
-            value={tmpAnime?.introduction}
+            value={newAnime.introduction}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -450,7 +362,7 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             label='rate'
             id='rate'
             name='rate'
-            value={tmpAnime?.rate}
+            value={newAnime.rate}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -466,7 +378,7 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             helperText='Disabled*'
             label='isFavorite'
             id='isFavorite'
-            defaultValue={tmpAnime?.isFavorite}
+            defaultValue={newAnime.isFavorite}
             variant='outlined'
           />
           <TextField
@@ -475,14 +387,20 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             helperText='Disabled*'
             label='isReminding'
             id='isReminding'
-            defaultValue={tmpAnime?.isReminding}
+            defaultValue={newAnime.isReminding}
             variant='outlined'
           />
           <TextField
             label='baha-link'
             id='baha-link'
             name='video'
-            value={tmpAnime.video!.baha!.link}
+            error={!checkAnime(newAnime).baha.isPass}
+            helperText={
+              !checkAnime(newAnime).baha.isPass
+                ? checkAnime(newAnime).baha.text
+                : ''
+            }
+            value={newAnime.video!.baha!.link}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -491,11 +409,17 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             type='number'
+            error={!checkAnime(newAnime).baha.isPass}
+            helperText={
+              !checkAnime(newAnime).baha.isPass
+                ? checkAnime(newAnime).baha.text
+                : ''
+            }
             className={classes.contentNumber}
             label='baha-episode'
             id='baha-episode'
             name='video'
-            value={tmpAnime.video!.baha!.episode}
+            value={newAnime.video!.baha!.episode}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -505,8 +429,14 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           <TextField
             label='muse-link'
             id='muse-link'
+            error={!checkAnime(newAnime).muse.isPass}
+            helperText={
+              !checkAnime(newAnime).muse.isPass
+                ? checkAnime(newAnime).muse.text
+                : ''
+            }
             name='video'
-            value={tmpAnime.video?.muse?.link}
+            value={newAnime.video?.muse?.link}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -518,8 +448,14 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             className={classes.contentNumber}
             label='muse-episode'
             id='muse-episode'
+            error={!checkAnime(newAnime).muse.isPass}
+            helperText={
+              !checkAnime(newAnime).muse.isPass
+                ? checkAnime(newAnime).muse.text
+                : ''
+            }
             name='video'
-            value={tmpAnime.video?.muse?.episode}
+            value={newAnime.video?.muse?.episode}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
               readOnly: !isEditing
@@ -532,10 +468,10 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
       <Modal
         modalIsOpen={modalIsOpen}
         setModalIsOpen={setModalIsOpen}
-        activeAnime={activeAnime}
+        activeAnime={newAnime}
       />
     </>
   )
 }
 
-export default AnimeDetail
+export default AddNewAnime

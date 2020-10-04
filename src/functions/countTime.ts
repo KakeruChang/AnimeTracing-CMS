@@ -25,13 +25,21 @@ const countTime = (anime: Anime) => {
     const timeToNextDay = parseInt(displayingTimeISO, 10) % 2400
     const hourTimeToNextDay = Math.floor(timeToNextDay / 100)
     const minuteTimeToNextDay = timeToNextDay % 100
-    displayingTimeISO = `${hourTimeToNextDay}:${minuteTimeToNextDay}`
+    displayingTimeISO = `${
+      hourTimeToNextDay < 10 ? '0' : ''
+    }${hourTimeToNextDay}:${
+      minuteTimeToNextDay < 10 ? '0' : ''
+    }${minuteTimeToNextDay}`
+    console.log(displayingTimeISO)
   } else {
     // format to ISO
     displayingTimeISO = anime.time.replace(' ', '')
     const hourTime = Math.floor(parseInt(displayingTimeISO, 10) / 100)
     const minuteTime = parseInt(displayingTimeISO, 10) % 100
-    displayingTimeISO = `${hourTime}:${minuteTime}`
+    // displayingTimeISO = `${hourTime}:${minuteTime}`
+    displayingTimeISO = `${hourTime < 10 ? '0' : ''}${hourTime}:${
+      minuteTime < 10 ? '0' : ''
+    }${minuteTime}`
   }
 
   // get the next displaying date

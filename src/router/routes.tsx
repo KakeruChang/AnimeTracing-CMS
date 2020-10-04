@@ -4,6 +4,7 @@ import { Redirect } from 'react-router'
 
 import Home from '../components/Home'
 import AnimeDetail from '../components/AnimeDetail'
+import AddNewAnime from '../components/AddNewAnime'
 
 const routes: RouteConfig[] = [
   {
@@ -17,7 +18,10 @@ const routes: RouteConfig[] = [
       <AnimeDetail allAnime={route.allAnime} animeId={route.match.params.id} />
     )
   },
-
+  {
+    path: '/add',
+    component: (route: RouteConfig) => <AddNewAnime allAnime={route.allAnime} />
+  },
   {
     path: '*',
     exact: true,
