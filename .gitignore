@@ -2,3 +2,9 @@
 
 # dependencies
 /node_modules
+
+.env
+.env.local
+.gitignore
+
+/src/firebase/key.ts

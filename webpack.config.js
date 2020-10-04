@@ -1,4 +1,5 @@
 const path = require('path')
+const webpack = require('webpack')
 
 module.exports = {
   // entry: './src/index.js',
@@ -6,6 +7,11 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, './dist/')
+  },
+  resolve: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
+  devServer: {
+    contentBase: './dist',
+    port: 3000
   },
   module: {
     rules: [

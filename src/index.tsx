@@ -1,6 +1,15 @@
 import React from 'react'
 import ReactDom from 'react-dom'
+import { HashRouter } from 'react-router-dom'
 
-const Main = () => <h1>Hi JSX！</h1>
+import App from './App'
 
-ReactDom.render(<Main />, document.getElementById('root'))
+ReactDom.render(
+  // <BrowserRouter basename={process.env.PUBLIC_URL}>
+  //   <App />
+  // </BrowserRouter>
+  <HashRouter>
+    <App />
+  </HashRouter>,
+  document.getElementById('root')
+)
