@@ -16,7 +16,9 @@ import DeleteButton from './common/Button/DeleteButton'
 import DateAndTimePickers from './common/DateAndTimePickers'
 import TypeChips from './common/TypeChips'
 import Modal from './Modal'
+import { checkAnime, allCheckIsPassed } from '../functions/checkAnime'
 import { db } from '../firebase'
+import { FormHelperText } from '@material-ui/core'
 
 interface AnimeDetailProps {
   allAnime: Array<Anime>
@@ -177,37 +179,39 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
   }
 
   const saveEditing = async () => {
-    setActiveAnime(JSON.parse(JSON.stringify(tmpAnime)))
-    setIsEditing(false)
+    if (allCheckIsPassed(checkAnime(tmpAnime))) {
+      setActiveAnime(JSON.parse(JSON.stringify(tmpAnime)))
+      setIsEditing(false)
 
-    let copyAllAnime = JSON.parse(JSON.stringify(allAnime))
-    for (let i = 0; i < copyAllAnime.length; i += 1) {
-      if (tmpAnime.id === copyAllAnime[i].id) {
-        copyAllAnime[i] = tmpAnime
-        break
+      let copyAllAnime = JSON.parse(JSON.stringify(allAnime))
+      for (let i = 0; i < copyAllAnime.length; i += 1) {
+        if (tmpAnime.id === copyAllAnime[i].id) {
+          copyAllAnime[i] = tmpAnime
+          break
+        }
       }
-    }
-    const expiration: AnimeDocProps | undefined = await db
-      .collection('Animes')
-      .get()
-      .then((querySnapshot) => {
-        let result
-        querySnapshot.forEach((doc) => {
-          result = doc.data().expiration
+      const expiration: AnimeDocProps | undefined = await db
+        .collection('Animes')
+        .get()
+        .then((querySnapshot) => {
+          let result
+          querySnapshot.forEach((doc) => {
+            result = doc.data().expiration
+          })
+          return result
         })
-        return result
-      })
 
-    console.log(copyAllAnime)
-    db.collection('Animes')
-      .doc('allAnime')
-      .set({ allAnime: copyAllAnime, expiration })
-      .then(function () {
-        console.log('Document successfully written!')
-      })
-      .catch(function (error) {
-        console.error('Error writing document: ', error)
-      })
+      console.log(copyAllAnime)
+      db.collection('Animes')
+        .doc('allAnime')
+        .set({ allAnime: copyAllAnime, expiration })
+        .then(function () {
+          console.log('Document successfully written!')
+        })
+        .catch(function (error) {
+          console.error('Error writing document: ', error)
+        })
+    }
   }
 
   const cancelEditing = () => {
@@ -290,11 +294,11 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
       <form className={classes.root} noValidate autoComplete='off'>
         <div>
           <TextField
-            error={tmpAnime?.title.length === 0}
             required
+            error={!checkAnime(tmpAnime).title.isPass}
             helperText={
-              tmpAnime?.title.length === 0
-                ? 'Title can not be empty'
+              !checkAnime(tmpAnime).title.isPass
+                ? checkAnime(tmpAnime).title.text
                 : 'Required*'
             }
             label='title'
@@ -308,7 +312,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             required
-            helperText='Required*'
+            error={!checkAnime(tmpAnime).imgLink.isPass}
+            helperText={
+              !checkAnime(tmpAnime).imgLink.isPass
+                ? checkAnime(tmpAnime).imgLink.text
+                : 'Required*'
+            }
             label='imgLink'
             id='imgLink'
             name='imgLink'
@@ -320,7 +329,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             required
-            helperText='Required*'
+            error={!checkAnime(tmpAnime).webLink.isPass}
+            helperText={
+              !checkAnime(tmpAnime).webLink.isPass
+                ? checkAnime(tmpAnime).webLink.text
+                : 'Required*'
+            }
             label='webLink'
             id='webLink'
             name='webLink'
@@ -334,7 +348,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             type='number'
             className={classes.contentNumber}
             required
-            helperText='Required*'
+            error={!checkAnime(tmpAnime).episode.isPass}
+            helperText={
+              !checkAnime(tmpAnime).episode.isPass
+                ? checkAnime(tmpAnime).episode.text
+                : 'Required*'
+            }
             label='episode'
             id='episode'
             name='episode'
@@ -349,7 +368,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             required
-            helperText='Required*'
+            error={!checkAnime(tmpAnime).id.isPass}
+            helperText={
+              !checkAnime(tmpAnime).id.isPass
+                ? checkAnime(tmpAnime).id.text
+                : 'Required*'
+            }
             label='id'
             id='id'
             name='id'
@@ -368,7 +392,11 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
         />
 
         <div>
-          <FormControl variant='outlined' className={classes.formControl}>
+          <FormControl
+            variant='outlined'
+            className={classes.formControl}
+            error={!checkAnime(tmpAnime).day.isPass}
+          >
             <InputLabel htmlFor='day'>day</InputLabel>
             <Select
               value={tmpAnime.day}
@@ -390,6 +418,11 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
               <MenuItem value={6}>6</MenuItem>
               <MenuItem value={7}>7</MenuItem>
             </Select>
+            <FormHelperText>
+              {!checkAnime(tmpAnime).day.isPass
+                ? checkAnime(tmpAnime).day.text
+                : ''}
+            </FormHelperText>
           </FormControl>
 
           <TextField
@@ -431,7 +464,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           <TextField
             required
             multiline
-            helperText='Required*'
+            error={!checkAnime(tmpAnime).introduction.isPass}
+            helperText={
+              !checkAnime(tmpAnime).introduction.isPass
+                ? checkAnime(tmpAnime).introduction.text
+                : 'Required*'
+            }
             label='introduction'
             id='introduction'
             name='introduction'
@@ -482,6 +520,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             label='baha-link'
             id='baha-link'
             name='video'
+            error={!checkAnime(tmpAnime).baha.isPass}
+            helperText={
+              !checkAnime(tmpAnime).baha.isPass
+                ? checkAnime(tmpAnime).baha.text
+                : ''
+            }
             value={tmpAnime.video!.baha!.link}
             onChange={(e) => onChangeHandler(e)}
             InputProps={{
@@ -491,6 +535,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           />
           <TextField
             type='number'
+            error={!checkAnime(tmpAnime).baha.isPass}
+            helperText={
+              !checkAnime(tmpAnime).baha.isPass
+                ? checkAnime(tmpAnime).baha.text
+                : ''
+            }
             className={classes.contentNumber}
             label='baha-episode'
             id='baha-episode'
@@ -505,6 +555,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
           <TextField
             label='muse-link'
             id='muse-link'
+            error={!checkAnime(tmpAnime).muse.isPass}
+            helperText={
+              !checkAnime(tmpAnime).muse.isPass
+                ? checkAnime(tmpAnime).muse.text
+                : ''
+            }
             name='video'
             value={tmpAnime.video?.muse?.link}
             onChange={(e) => onChangeHandler(e)}
@@ -518,6 +574,12 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
             className={classes.contentNumber}
             label='muse-episode'
             id='muse-episode'
+            error={!checkAnime(tmpAnime).muse.isPass}
+            helperText={
+              !checkAnime(tmpAnime).muse.isPass
+                ? checkAnime(tmpAnime).muse.text
+                : ''
+            }
             name='video'
             value={tmpAnime.video?.muse?.episode}
             onChange={(e) => onChangeHandler(e)}
