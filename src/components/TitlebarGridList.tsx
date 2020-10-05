@@ -3,7 +3,7 @@ import { Theme, createStyles, makeStyles } from '@material-ui/core/styles'
 import GridList from '@material-ui/core/GridList'
 import GridListTile from '@material-ui/core/GridListTile'
 import GridListTileBar from '@material-ui/core/GridListTileBar'
-import ListSubheader from '@material-ui/core/ListSubheader'
+// import ListSubheader from '@material-ui/core/ListSubheader'
 import IconButton from '@material-ui/core/IconButton'
 // import InfoIcon from '@material-ui/icons/Info'
 import EditIcon from '@material-ui/icons/Edit'
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.background.paper
     },
     gridList: {
-      width: 750
+      width: 1000
       // height: 450
     },
     icon: {
@@ -59,11 +59,11 @@ export default function TitlebarGridList({
   return (
     <div className={classes.root}>
       <GridList cellHeight={180} className={classes.gridList}>
-        <GridListTile key='Subheader' cols={2} style={{ height: 'auto' }}>
+        {/* <GridListTile key='Subheader' cols={2} style={{ height: 'auto' }}>
           <ListSubheader component='div'>December</ListSubheader>
-        </GridListTile>
+        </GridListTile> */}
         {animeList.map((anime) => (
-          <GridListTile key={anime.id} cols={0.66}>
+          <GridListTile key={anime.id} cols={0.5}>
             <img src={anime.imgLink} alt={anime.title} />
             <GridListTileBar
               title={anime.title}
