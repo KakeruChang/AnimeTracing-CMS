@@ -1,16 +1,16 @@
 import React, {
   useState,
+  useEffect,
   Dispatch,
   SetStateAction,
   ChangeEvent,
   KeyboardEvent
 } from 'react'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
-import Chip from '@material-ui/core/Chip'
 import CancelIcon from '@material-ui/icons/Cancel'
-import TextField from '@material-ui/core/TextField'
 import ArrowForwardOutlinedIcon from '@material-ui/icons/ArrowForwardOutlined'
-import IconButton from '@material-ui/core/IconButton'
+import SubdirectoryArrowLeftIcon from '@material-ui/icons/SubdirectoryArrowLeft'
+import { Chip, TextField, IconButton, Button } from '@material-ui/core'
 
 import { Anime } from '../../interface'
 
@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) =>
       '&.MuiTextField-root': {
         width: '250px !important'
       }
+    },
+    button: {
+      margin: theme.spacing(1)
     }
   })
 )
@@ -46,12 +49,45 @@ export default function TypeChips({
   const classes = useStyles()
   const [tagInput, setTagInput] = useState('')
   const [editContent, setEditContent] = useState<string | null>(null)
+  const exampleTagsData = [
+    '少年',
+    '青年',
+    '少女',
+    '幽默搞笑',
+    '奇幻冒險',
+    '運動競技',
+    '科幻未來',
+    '青春校園',
+    '戀愛'
+  ]
+  const [exampleTags, setExampleTags] = useState<Array<string>>(exampleTagsData)
+
+  useEffect(() => {
+    // check wheather tag is existong
+    let copy = [...exampleTags]
+    tmpAnime.type.forEach((item) => {
+      for (let j = 0; j < copy.length; j += 1) {
+        if (item === copy[j]) {
+          copy.splice(j, 1)
+          break
+        }
+      }
+    })
+    setExampleTags(copy)
+  }, [tmpAnime])
 
   const deleteType = (index: number) => {
     if (isEditing) {
       let copy = { ...tmpAnime }
-      copy.type.splice(index, 1)
 
+      for (let i = 0; i < exampleTagsData.length; i += 1) {
+        if (copy.type[index] === exampleTagsData[i]) {
+          setExampleTags([...exampleTags, exampleTagsData[i]])
+          break
+        }
+      }
+
+      copy.type.splice(index, 1)
       setTmpAnime(copy)
     }
   }
@@ -102,6 +138,24 @@ export default function TypeChips({
     setTagInput('')
   }
 
+  const addTagByClicking = (tag: string, index: number) => {
+    let isExist = false
+    let copy = { ...tmpAnime }
+    const copyExamples = [...exampleTags]
+
+    copy.type.forEach((item) => {
+      if (item === tag) {
+        isExist = true
+      }
+    })
+    if (!isExist) {
+      copy.type.push(tag)
+      copyExamples.splice(index, 1)
+      setExampleTags(copyExamples)
+      setTmpAnime(copy)
+    }
+  }
+
   return (
     <div className={classes.root}>
       {tmpAnime.type.map((item, i) => (
@@ -135,6 +189,20 @@ export default function TypeChips({
           <ArrowForwardOutlinedIcon />
         </IconButton>
       )}
+      <div>
+        {exampleTags.map((tag, i) => (
+          <Button
+            variant='contained'
+            color='primary'
+            className={classes.button}
+            endIcon={<SubdirectoryArrowLeftIcon />}
+            onClick={() => addTagByClicking(tag, i)}
+            key={tag}
+          >
+            {tag}
+          </Button>
+        ))}
+      </div>
     </div>
   )
 }

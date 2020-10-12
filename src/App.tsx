@@ -13,8 +13,7 @@ const App = () => {
       setAllAnime(result)
     })
   }, [])
-
-  return <>{renderRoutes(routes, { allAnime })}</>
+  return <>{renderRoutes(routes, { allAnime, setAllAnime })}</>
 }
 
 export default App

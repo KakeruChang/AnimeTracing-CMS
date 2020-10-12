@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export default function PushOne() {
+export default function AddOne() {
   const classes = useStyles()
   const history = useHistory()
 

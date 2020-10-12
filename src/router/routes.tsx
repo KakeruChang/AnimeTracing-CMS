@@ -15,12 +15,18 @@ const routes: RouteConfig[] = [
   {
     path: '/detail/:id',
     component: (route: RouteConfig) => (
-      <AnimeDetail allAnime={route.allAnime} animeId={route.match.params.id} />
+      <AnimeDetail
+        allAnime={route.allAnime}
+        setAllAnime={route.setAllAnime}
+        animeId={route.match.params.id}
+      />
     )
   },
   {
     path: '/add',
-    component: (route: RouteConfig) => <AddNewAnime allAnime={route.allAnime} />
+    component: (route: RouteConfig) => (
+      <AddNewAnime allAnime={route.allAnime} setAllAnime={route.setAllAnime} />
+    )
   },
   {
     path: '*',

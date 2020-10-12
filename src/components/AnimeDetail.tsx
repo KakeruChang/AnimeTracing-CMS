@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
@@ -15,6 +15,7 @@ import AnimeFormContent from './common/AnimeFormContent'
 
 interface AnimeDetailProps {
   allAnime: Array<Anime>
+  setAllAnime: Dispatch<SetStateAction<Array<Anime>>>
   animeId: string
 }
 
@@ -30,7 +31,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
+const AnimeDetail: FC<AnimeDetailProps> = ({
+  allAnime,
+  setAllAnime,
+  animeId
+}) => {
   const classes = useStyles()
   const history = useHistory()
   const [activeAnime, setActiveAnime] = useState<Anime>({
@@ -131,9 +136,23 @@ const AnimeDetail: FC<AnimeDetailProps> = ({ allAnime, animeId }) => {
     const doubleCheck = confirm(`你確定要刪除${target.title}嗎`)
 
     if (doubleCheck) {
+      // let index = null
+      // for (let i = 0; i < allAnime.length; i += 1) {
+      //   if (target.id === allAnime[i].id) {
+      //     index = i
+      //     break
+      //   }
+      // }
+      // if (typeof index === 'number') {
+      //   const copy = JSON.parse(JSON.stringify(allAnime))
+      //   copy.splice(index, 1)
+      //   setAllAnime(copy)
+      // }
+
       softDeleteAnime({
         anime: activeAnime,
         nextStep: () => {
+          // history.push('/')
           window.location.reload()
         }
       })

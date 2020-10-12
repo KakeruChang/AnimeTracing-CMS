@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.background.paper
     },
     gridList: {
-      width: 1000
+      width: '100vw'
       // height: 450
     },
     icon: {
@@ -63,10 +63,10 @@ export default function TitlebarGridList({
           <ListSubheader component='div'>December</ListSubheader>
         </GridListTile> */}
         {animeList.map((anime) => (
-          <GridListTile key={anime.id} cols={0.5}>
+          <GridListTile key={anime.id} cols={0.4}>
             <img src={anime.imgLink} alt={anime.title} />
             <GridListTileBar
-              title={anime.title}
+              title={`(${anime.rate})${anime.title}`}
               // subtitle={<span>by: {tile.author}</span>}
               actionIcon={
                 <IconButton

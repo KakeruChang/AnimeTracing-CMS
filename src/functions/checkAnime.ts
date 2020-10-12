@@ -11,6 +11,8 @@ interface CheckContent {
   imgLink: CheckContentItem
   webLink: CheckContentItem
   day: CheckContentItem
+  time: CheckContentItem
+  startingDate: CheckContentItem
   episode: CheckContentItem
   introduction: CheckContentItem
   baha: CheckContentItem
@@ -24,6 +26,8 @@ export function checkAnime(anime: Anime) {
     imgLink: { isPass: false, text: '' },
     webLink: { isPass: false, text: '' },
     day: { isPass: false, text: '' },
+    time: { isPass: false, text: '' },
+    startingDate: { isPass: false, text: '' },
     episode: { isPass: false, text: '' },
     introduction: { isPass: false, text: '' },
     baha: { isPass: false, text: '' },
@@ -62,6 +66,25 @@ export function checkAnime(anime: Anime) {
     result.day.text = 'day should be chosen'
   } else {
     result.day.isPass = true
+  }
+
+  if (!anime.time || anime.time === '') {
+    result.time.text = 'time should be inputted'
+  } else if (anime.time.length !== 5 || anime.time[2] !== ' ') {
+    result.time.text = 'wrong format of time'
+  } else {
+    result.time.isPass = true
+  } // startingDate: { isPass: false, text: '' },
+
+  if (!anime.startingDate || anime.startingDate === '') {
+    result.startingDate.text = 'startingDate should be inputted'
+  } else if (
+    anime.startingDate.length !== 10 ||
+    (anime.startingDate[4] !== ' ' && anime.startingDate[7] !== ' ')
+  ) {
+    result.startingDate.text = 'wrong format of startingDate'
+  } else {
+    result.startingDate.isPass = true
   }
 
   if (!anime.episode || anime.episode <= 0) {

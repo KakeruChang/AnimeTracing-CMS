@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { Dispatch, FC, SetStateAction, useState } from 'react'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import { useHistory } from 'react-router-dom'
 
@@ -42,7 +42,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const AddNewAnime: FC = () => {
+interface AddNewAnimeProps {
+  allAnime: Array<Anime>
+  setAllAnime: Dispatch<SetStateAction<Array<Anime>>>
+}
+
+const AddNewAnime: FC<AddNewAnimeProps> = ({ allAnime, setAllAnime }) => {
   const classes = useStyles()
   const history = useHistory()
   const [newAnime, setNewAnime] = useState<Anime>({
@@ -68,12 +73,15 @@ const AddNewAnime: FC = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false)
 
   const saveEditing = async () => {
+    console.log(allAnime)
     if (allCheckIsPassed(checkAnime(newAnime))) {
+      const copy = JSON.parse(JSON.stringify(allAnime))
+      setAllAnime([...copy, newAnime])
+
       addNewAnime({
         anime: newAnime,
         nextStep: () => {
           history.push('/')
-          window.location.reload()
         }
       })
     } else {

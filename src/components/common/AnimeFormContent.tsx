@@ -4,12 +4,7 @@ import React, {
   SetStateAction,
   KeyboardEvent
 } from 'react'
-// import TextField from '@material-ui/core/TextField'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
-// import InputLabel from '@material-ui/core/InputLabel'
-// import Select from '@material-ui/core/Select'
-//import MenuItem from '@material-ui/core/MenuItem'
-// import FormControl from '@material-ui/core/FormControl'
 import {
   TextField,
   InputLabel,
@@ -252,7 +247,12 @@ export default function AnimeFormContent({
 
         <TextField
           className={classes.contentNumber}
-          helperText='hh mm/ ex: 09 30'
+          error={!checkAnime(anime).time.isPass}
+          helperText={
+            !checkAnime(anime).time.isPass
+              ? checkAnime(anime).time.text
+              : 'hh mm/ ex: 09 30'
+          }
           label='time'
           id='time'
           name='time'
@@ -265,7 +265,12 @@ export default function AnimeFormContent({
         />
         <TextField
           className={classes.contentNumber}
-          helperText='YYYY MM DD'
+          error={!checkAnime(anime).startingDate.isPass}
+          helperText={
+            !checkAnime(anime).startingDate.isPass
+              ? checkAnime(anime).startingDate.text
+              : 'YYYY MM DD'
+          }
           label='startingDate'
           id='startingDate'
           name='startingDate'
